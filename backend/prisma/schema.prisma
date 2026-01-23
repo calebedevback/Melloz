@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String
+  avatar    String?    @default("https://picsum.photos/100/100?random=1")
+  isPremium Boolean    @default(false)
+  vibes     String[]   @default([])
+  
+  // Relacionamentos
+  createdEvents Event[]  @relation("CreatedBy")
+  attendingEvents EventAttendee[]
+  
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("users")
+}
+
+model Event {
+  id              String     @id @default(cuid())
+  title           String
+  description     String
+  location        String
+  latitude        Float?
+  longitude       Float?
+  startTime       String     // HH:mm format
+  endTime         String?
+  date            String     // 'today', 'tomorrow', 'weekend', 'week', 'custom'
+  dateLabel       String?    // e.g. "Sexta, 14 Out"
+  image           String?    @default("https://picsum.photos/600/400?random=1")
+  vibe            String     // 'Calmo', 'Agitado', 'Eletrônico', 'Barzinho', 'Underground', 'After'
+  priceLevel      Int        // 1-4 ($ to $$$$)
+  confirmedCount  Int        @default(1)
+  isAfterHours    Boolean    @default(false)
+  isOfficial      Boolean    @default(true)
+  maxAttendees    Int?
+  
+  // Relacionamentos
+  createdBy       String
+  creator         User       @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
+  
+  attendees       EventAttendee[]
+  friendsGoing    String[]   @default([]) // array de user IDs
+  
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([date])
+  @@index([vibe])
+  @@index([location])
+  @@index([createdBy])
+  @@map("events")
+}
+
+model EventAttendee {
+  id        String  @id @default(cuid())
+  eventId   String
+  userId    String
+  
+  event     Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("event_attendees")
+}

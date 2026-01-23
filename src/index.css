@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile-first optimizations */
+@media (max-width: 768px) {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  input,
+  textarea {
+    min-height: 44px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  /* Prevent double-tap zoom */
+  a, button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improve touch targets */
+  .glass-panel {
+    padding: 1rem;
+  }
+
+  /* Better spacing for mobile screens */
+  @apply px-4 py-2;
+}
+
+/* Tablet and larger */
+@media (min-width: 769px) {
+  body {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+}
+
+/* Large screens - center the app */
+@media (min-width: 1024px) {
+  #root {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  .text-zinc-100 {
+    max-width: 428px;
+    margin: 0 auto;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent rubber-band scroll on iOS */
+body {
+  overscroll-behavior: none;
+}
+
+/* Better input styling for mobile */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 12px;
+}
+
+/* High contrast for better readability on mobile */
+@media (prefers-color-scheme: dark) {
+  * {
+    color-scheme: dark;
+  }
+}
+
+/* Touch-friendly animations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom scrollbar for better UX */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
