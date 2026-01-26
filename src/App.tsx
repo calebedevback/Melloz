@@ -12,6 +12,7 @@ import { ToastContainer, useToast } from './components/Toast';
 import { AppTab, Event, User } from './types';
 import { MOCK_EVENTS, MOCK_USERS } from './constants';
 import { supabase } from './lib/supabase';
+import { SupabaseDBService, Event as DBEvent } from './lib/supabase-db';
 
 const App: React.FC = () => {
   const { toasts, removeToast, success, error } = useToast();
@@ -20,8 +21,51 @@ const App: React.FC = () => {
   const [showPremium, setShowPremium] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   
-  // Initialize with Mock Events, but allow adding new ones
-  const [allEvents, setAllEvents] = useState<Event[]>(MOCK_EVENTS);
+  // Initialize with empty events, will load from database
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
+  // Carregar eventos do database quando logado
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadEvents();
+    } else {
+      setAllEvents([]);
+    }
+  }, [isLoggedIn]);
+
+  const loadEvents = async () => {
+    try {
+      setLoadingEvents(true);
+      const { events } = await SupabaseDBService.getEvents({ limit: 50 });
+      
+      // Converter para formato do frontend
+      const convertedEvents: Event[] = events.map((dbEvent: DBEvent) => ({
+        id: dbEvent.id,
+        title: dbEvent.title,
+        location: dbEvent.location,
+        startTime: dbEvent.startTime,
+        endTime: dbEvent.endTime,
+        date: dbEvent.date as any, // Converter string para DateFilter
+        dateLabel: dbEvent.dateLabel,
+        image: dbEvent.image || 'https://picsum.photos/600/400?random=1',
+        vibe: dbEvent.vibe as any,
+        priceLevel: dbEvent.priceLevel as any,
+        confirmedCount: dbEvent.confirmedCount,
+        friendsGoing: [], // TODO: Carregar amigos que vão
+        isAfterHours: dbEvent.isAfterHours,
+        isOfficial: dbEvent.isOfficial,
+        description: dbEvent.description,
+      }));
+
+      setAllEvents(convertedEvents);
+    } catch (err) {
+      console.error('Erro ao carregar eventos:', err);
+      error('Erro ao carregar eventos', 'Tente novamente mais tarde');
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
   
   // User State - Defaulting to non-premium to show the lock feature
   const [currentUser, setCurrentUser] = useState<User>({
