@@ -7,8 +7,8 @@ const AfterHours: React.FC<{ onPremiumClick: () => void }> = ({ onPremiumClick }
   // Filter events between 00:00 and 05:00 (early morning after hours)
   const afterEvents = filterEventsByTimeRange(MOCK_EVENTS, 0, 5);
 
-  // Simulating user is NOT premium for demo purposes
-  const isPremium = false; 
+  // Ativando After Hours para teste
+  const isPremium = true; 
 
   return (
     <div className="pt-6 pb-24 px-4 min-h-screen bg-gradient-to-b from-night-950 via-[#0a0514] to-night-950">

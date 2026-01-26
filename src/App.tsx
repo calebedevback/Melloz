@@ -228,7 +228,7 @@ const App: React.FC = () => {
         <div className="animate-slide-in-right">
           <EventDetails 
             event={selectedEvent}
-            onClose={() => setSelectedEvent(null)}
+            onBack={() => setSelectedEvent(null)}
             isJoined={confirmedEvents.includes(selectedEvent.id)}
             onToggleJoin={() => handleToggleEvent(selectedEvent.id)}
             currentUser={currentUser}

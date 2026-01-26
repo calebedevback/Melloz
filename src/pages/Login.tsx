@@ -12,6 +12,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -24,6 +25,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              name: name,
+            }
+          }
         });
         if (error) throw error;
         setError('Conta criada! Verifique seu email.');
@@ -72,6 +78,22 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </div>
           )}
           
+          {isSignUp && (
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <span className="text-zinc-500 group-focus-within:text-violet-400 transition-colors">👤</span>
+              </div>
+              <input 
+                type="text" 
+                placeholder="Nome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
+                required={isSignUp}
+              />
+            </div>
+          )}
+
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Mail size={18} className="text-zinc-500 group-focus-within:text-violet-400 transition-colors" />
