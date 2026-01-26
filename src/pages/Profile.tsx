@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { MOCK_USERS } from '../constants';
 import { User, VibeType } from '../types';
+import { supabase } from '../lib/supabase';
 
 type ProfileView = 'main' | 'edit' | 'settings';
 
@@ -45,6 +46,11 @@ const Profile: React.FC = () => {
       vibes: editForm.vibes 
     });
     setActiveView('main');
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    // O App.tsx vai detectar a mudança de autenticação automaticamente
   };
 
   const toggleVibe = (vibe: VibeType) => {
@@ -317,7 +323,10 @@ const Profile: React.FC = () => {
         </div>
 
         {/* Logout */}
-        <button className="w-full flex items-center justify-center gap-2 bg-rose-500/20 border border-rose-500/30 text-rose-400 font-semibold py-2.5 rounded-lg hover:bg-rose-500/30 transition-colors">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 bg-rose-500/20 border border-rose-500/30 text-rose-400 font-semibold py-2.5 rounded-lg hover:bg-rose-500/30 transition-colors"
+        >
           <LogOut size={18} />
           Sair
         </button>

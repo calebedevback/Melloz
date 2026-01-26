@@ -1,6 +1,6 @@
 -- Inserir alguns eventos de exemplo
 INSERT INTO events (
-  id, title, description, location, startTime, endTime, date, dateLabel, image, vibe, priceLevel, confirmedCount, isAfterHours, isOfficial, createdBy, friendsGoing
+  id, title, description, location, "startTime", "endTime", date, "dateLabel", image, vibe, "priceLevel", "confirmedCount", "isAfterHours", "isOfficial", createdBy, friendsGoing
 ) VALUES 
   (
     'evt_1', 
@@ -58,7 +58,7 @@ INSERT INTO events (
   );
 
 -- Inserir usuários de exemplo
-INSERT INTO users (id, email, name, avatar, isPremium, vibes) VALUES 
+INSERT INTO users (id, email, name, avatar, "isPremium", vibes) VALUES 
   ('user_1', 'gabrielcalebe58@gmail.com', 'Gabriel', 'https://picsum.photos/100/100?random=1', false, ARRAY['Eletrônico', 'After']),
   ('user_2', 'test@example.com', 'Maria', 'https://picsum.photos/100/100?random=2', true, ARRAY['Barzinho', 'Calmo']),
   ('user_3', 'joao@example.com', 'João', 'https://picsum.photos/100/100?random=3', false, ARRAY['Underground', 'Agitado']);
