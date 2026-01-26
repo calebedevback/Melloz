@@ -154,36 +154,59 @@ const Profile: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       try {
+        console.log('Iniciando upload da foto:', file.name);
+        
         // Upload para o Supabase Storage
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.id}-avatar.${fileExt}`;
+        
+        console.log('Fazendo upload para:', fileName);
         
         const { data, error } = await supabase.storage
           .from('avatars')
           .upload(fileName, file);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erro no upload:', error);
+          alert('Erro ao fazer upload da foto: ' + error.message);
+          return;
+        }
+
+        console.log('Upload bem-sucedido:', data);
 
         // Obter URL pública
         const { data: { publicUrl } } = supabase.storage
           .from('avatars')
           .getPublicUrl(fileName);
 
+        console.log('URL pública:', publicUrl);
+
         // Atualizar perfil do usuário no banco
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (authUser) {
-          await supabase
+          const { error: updateError } = await supabase
             .from('users')
             .update({ avatar: publicUrl })
             .eq('id', authUser.id);
+
+          if (updateError) {
+            console.error('Erro ao atualizar banco:', updateError);
+            alert('Erro ao salvar foto no banco: ' + updateError.message);
+            return;
+          }
+
+          console.log('Banco atualizado com:', publicUrl);
 
           // Atualizar estado local
           setUser({ ...user, avatar: publicUrl });
           setAvatarPreview(publicUrl);
           setEditForm({ ...editForm, avatar: publicUrl });
+          
+          alert('Foto atualizada com sucesso!');
         }
       } catch (error) {
-        console.error('Erro ao fazer upload:', error);
+        console.error('Erro completo no upload:', error);
+        alert('Erro ao processar foto: ' + error.message);
       }
       
       const reader = new FileReader();
