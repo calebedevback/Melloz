@@ -210,6 +210,35 @@ const Profile: React.FC = () => {
           {/* Form */}
           <div className="space-y-6 bg-night-800/30 border border-white/5 rounded-2xl p-6 md:p-8">
             
+            {/* Avatar Upload */}
+            <div>
+              <label className="block text-sm font-bold text-white mb-2">Foto de Perfil</label>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/10">
+                  <img 
+                    src={editForm.avatar || 'https://picsum.photos/100/100?random=1'} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <label className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors active:scale-95">
+                    <Upload size={16} />
+                    <span>Alterar Foto</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleAvatarUpload} 
+                      className="hidden" 
+                    />
+                  </label>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    JPG, PNG, GIF ou WebP (máx. 1MB)
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Name */}
             <div>
               <label className="block text-sm font-bold text-white mb-2">Nome</label>
@@ -290,10 +319,20 @@ const Profile: React.FC = () => {
             {/* Save Button */}
             <button
               onClick={handleSaveProfile}
-              className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-3 rounded-lg hover:scale-105 transition-transform active:scale-95 flex items-center justify-center gap-2"
+              disabled={saving}
+              className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-3 rounded-lg hover:scale-105 transition-transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Save size={20} />
-              Salvar Mudanças
+              {saving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Salvando...</span>
+                </>
+              ) : (
+                <>
+                  <Save size={20} />
+                  <span>Salvar Mudanças</span>
+                </>
+              )}
             </button>
           </div>
         </div>
