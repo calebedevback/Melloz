@@ -36,6 +36,15 @@ const Profile: React.FC = () => {
             isPremium: profile.isPremium || false,
             vibes: profile.vibes || []
           });
+          setEditForm({
+            name: profile.name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+            bio: 'Amante de música e noites inesquecíveis 🎵',
+            location: 'São Paulo, SP',
+            avatar: profile.avatar || authUser.user_metadata?.avatar_url || 'https://picsum.photos/100/100?random=1',
+            vibes: profile.vibes || [],
+            email: profile.email || authUser.email || '',
+            phone: '+55 11 99999-8888',
+          });
         } else {
           // Se não tiver perfil, usar dados do auth
           setUser({
@@ -74,14 +83,32 @@ const Profile: React.FC = () => {
 
   const vibeOptions: VibeType[] = ['Eletrônico', 'After', 'Calmo'];
 
-  const handleSaveProfile = () => {
-    setUser({ 
-      ...user, 
-      name: editForm.name,
-      avatar: editForm.avatar,
-      vibes: editForm.vibes 
-    });
-    setActiveView('main');
+  const handleSaveProfile = async () => {
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        // Atualizar no banco
+        await supabase
+          .from('users')
+          .update({
+            name: editForm.name,
+            avatar: editForm.avatar,
+            vibes: editForm.vibes
+          })
+          .eq('id', authUser.id);
+
+        // Atualizar estado local
+        setUser({ 
+          ...user, 
+          name: editForm.name,
+          avatar: editForm.avatar,
+          vibes: editForm.vibes 
+        });
+        setActiveView('main');
+      }
+    } catch (error) {
+      console.error('Erro ao salvar perfil:', error);
+    }
   };
 
   const handleLogout = async () => {
@@ -122,7 +149,7 @@ const Profile: React.FC = () => {
           .from('avatars')
           .getPublicUrl(fileName);
 
-        // Atualizar perfil do usuário
+        // Atualizar perfil do usuário no banco
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (authUser) {
           await supabase
@@ -130,8 +157,10 @@ const Profile: React.FC = () => {
             .update({ avatar: publicUrl })
             .eq('id', authUser.id);
 
+          // Atualizar estado local
           setUser({ ...user, avatar: publicUrl });
           setAvatarPreview(publicUrl);
+          setEditForm({ ...editForm, avatar: publicUrl });
         }
       } catch (error) {
         console.error('Erro ao fazer upload:', error);
