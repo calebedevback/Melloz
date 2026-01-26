@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Layout from './components/Layout';
 import Feed from './pages/Feed';
 import MyEvents from './pages/MyEvents'; 
@@ -265,6 +266,9 @@ const App: React.FC = () => {
 
       {/* Toast Notifications Container */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
+      
+      {/* Vercel Web Analytics */}
+      <Analytics />
     </>
   );
 };
