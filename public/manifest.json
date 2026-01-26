@@ -9,7 +9,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/src/assets/logoo.png",
+      "src": "/assets/logoo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
