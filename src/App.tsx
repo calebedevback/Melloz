@@ -123,6 +123,8 @@ const App: React.FC = () => {
       avatar: user.user_metadata?.avatar_url || '',
       isPremium: false
     });
+    // Ir para perfil após login
+    setActiveTab('profile');
   };
 
   const handleLogout = async () => {
@@ -227,8 +229,8 @@ const App: React.FC = () => {
           <EventDetails 
             event={selectedEvent}
             onClose={() => setSelectedEvent(null)}
-            confirmedEventIds={confirmedEvents}
-            onToggleEvent={handleToggleEvent}
+            isJoined={confirmedEvents.includes(selectedEvent.id)}
+            onToggleJoin={() => handleToggleEvent(selectedEvent.id)}
             currentUser={currentUser}
             onOpenPremium={() => setShowPremium(true)}
           />

@@ -9,7 +9,7 @@ interface EventDetailsProps {
   onBack: () => void;
   isJoined: boolean;
   onToggleJoin: () => void;
-  currentUser: User; // Need to know if current user is premium
+  currentUser: User;
   onOpenPremium: () => void;
 }
 

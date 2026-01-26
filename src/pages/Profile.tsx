@@ -49,7 +49,7 @@ const Profile: React.FC = () => {
     location: 'São Paulo, SP',
     avatar: user.avatar,
     vibes: user.vibes,
-    email: 'ana@melloz.com',
+    email: user.email || '',
     phone: '+55 11 99999-8888',
   });
 
@@ -335,7 +335,7 @@ const Profile: React.FC = () => {
           </div>
 
           <h1 className="text-3xl font-bold text-white mb-1">{user.name}</h1>
-          <p className="text-zinc-400 text-sm mb-4">ana@melloz.com</p>
+          <p className="text-zinc-400 text-sm mb-4">{user.email}</p>
           
           {/* Premium desativado por enquanto */}
 
