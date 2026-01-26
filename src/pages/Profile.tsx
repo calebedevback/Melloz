@@ -11,6 +11,7 @@ type ProfileView = 'main' | 'edit' | 'settings';
 
 const Profile: React.FC = () => {
   const [activeView, setActiveView] = useState<ProfileView>('main');
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User>({
     id: '',
     name: '',
@@ -23,6 +24,7 @@ const Profile: React.FC = () => {
   // Carregar usuário real do Supabase
   React.useEffect(() => {
     const loadUserProfile = async () => {
+      setLoading(true);
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (authUser) {
         // Buscar perfil completo do banco
@@ -60,6 +62,7 @@ const Profile: React.FC = () => {
           });
         }
       }
+      setLoading(false);
     };
     
     loadUserProfile();
@@ -85,14 +88,17 @@ const Profile: React.FC = () => {
     darkMode: true,
   });
 
+  const [saving, setSaving] = useState(false);
+
   const vibeOptions: VibeType[] = ['Eletrônico', 'After', 'Calmo'];
 
   const handleSaveProfile = async () => {
     try {
+      setSaving(true);
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (authUser) {
         // Atualizar no banco
-        await supabase
+        const { error } = await supabase
           .from('users')
           .update({
             name: editForm.name,
@@ -100,6 +106,12 @@ const Profile: React.FC = () => {
             vibes: editForm.vibes
           })
           .eq('id', authUser.id);
+
+        if (error) {
+          console.error('Erro ao salvar:', error);
+          alert('Erro ao salvar perfil');
+          return;
+        }
 
         // Atualizar estado local
         setUser({ 
@@ -109,9 +121,13 @@ const Profile: React.FC = () => {
           vibes: editForm.vibes 
         });
         setActiveView('main');
+        alert('Perfil salvo com sucesso!');
       }
     } catch (error) {
       console.error('Erro ao salvar perfil:', error);
+      alert('Erro ao salvar perfil');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -351,7 +367,10 @@ const Profile: React.FC = () => {
           </div>
 
           {/* Logout Button */}
-          <button className="w-full mt-8 flex items-center justify-center gap-2 bg-rose-500/20 border border-rose-500/30 text-rose-400 font-semibold py-3 rounded-lg hover:bg-rose-500/30 transition-colors">
+          <button 
+            onClick={handleLogout}
+            className="w-full mt-8 flex items-center justify-center gap-2 bg-rose-500/20 border border-rose-500/30 text-rose-400 font-semibold py-3 rounded-lg hover:bg-rose-500/30 transition-colors"
+          >
             <LogOut size={18} />
             Sair
           </button>
@@ -361,76 +380,80 @@ const Profile: React.FC = () => {
   }
 
   // ===== MAIN VIEW =====
-  return (
-    <div className="pb-28 px-4 md:px-8 animate-fade-in">
-      <div className="mt-6 mb-8">
-        {/* Avatar & Info */}
-        <div className="flex flex-col items-center mb-8 text-center">
-          <div className="relative mb-6">
-            <div className="w-28 h-28 rounded-full overflow-hidden border-3 border-violet-500/50 shadow-[0_0_30px_rgba(139,92,246,0.3)]">
-              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+  if (activeView === 'main') {
+    return (
+      <div className="pb-28 px-4 md:px-8 animate-fade-in">
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-white text-lg">Carregando perfil...</div>
+          </div>
+        ) : (
+          <>
+            <div className="mt-6 mb-8">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
+                <h1 className="text-2xl font-bold text-white">Perfil</h1>
+                <button onClick={() => setActiveView('edit')} className="text-zinc-400 hover:text-white">
+                  <Edit2 size={24} />
+                </button>
+              </div>
+
+              {/* Profile Info */}
+              <div className="flex flex-col items-center mb-8 text-center">
+                <div className="relative mb-6">
+                  <div className="w-28 h-28 rounded-full overflow-hidden border-3 border-violet-500/50 shadow-[0_0_30px_rgba(139,92,246,0.3)]">
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  </div>
+                  <label className="absolute bottom-2 right-2 bg-violet-600 hover:bg-violet-700 text-white p-2 rounded-full transition-colors active:scale-95 cursor-pointer">
+                    <Camera size={16} />
+                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                  </label>
+                </div>
+
+                <h1 className="text-3xl font-bold text-white mb-1">{user.name}</h1>
+                <p className="text-zinc-400 text-sm mb-4">{user.email}</p>
+                
+                <div className="flex gap-2 justify-center flex-wrap mb-8">
+                  {user.vibes.map(vibe => (
+                    <span key={vibe} className="px-3 py-1 bg-night-800 border border-white/10 rounded-full text-xs font-semibold text-violet-400">
+                      {vibe}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 mb-8">
+                <button 
+                  onClick={() => setActiveView('edit')}
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-3 rounded-lg hover:scale-105 transition-transform active:scale-95"
+                >
+                  <Edit2 size={18} />
+                  Editar
+                </button>
+                <button 
+                  onClick={() => setActiveView('settings')}
+                  className="flex-1 flex items-center justify-center gap-2 bg-night-800 border border-white/10 text-white font-bold py-3 rounded-lg hover:border-white/30 transition-colors"
+                >
+                  <Shield size={18} />
+                  Config
+                </button>
+              </div>
+
+              {/* Logout */}
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 bg-rose-500/20 border border-rose-500/30 text-rose-400 font-semibold py-2.5 rounded-lg hover:bg-rose-500/30 transition-colors"
+              >
+                <LogOut size={18} />
+                Sair
+              </button>
             </div>
-            <label className="absolute bottom-2 right-2 bg-violet-600 hover:bg-violet-700 text-white p-2 rounded-full transition-colors active:scale-95 cursor-pointer">
-              <Camera size={16} />
-              <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-            </label>
-          </div>
-
-          <h1 className="text-3xl font-bold text-white mb-1">{user.name}</h1>
-          <p className="text-zinc-400 text-sm mb-4">{user.email}</p>
-          
-          {/* Premium desativado por enquanto */}
-
-          <div className="flex gap-2 justify-center flex-wrap mb-8">
-            {user.vibes.map(vibe => (
-              <span key={vibe} className="px-3 py-1 bg-night-800 border border-white/10 rounded-full text-xs font-semibold text-violet-400">
-                {vibe}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
-          <div className="bg-night-800/50 border border-white/10 rounded-xl p-4 text-center hover:border-violet-500/50 transition-colors">
-            <div className="text-2xl font-bold text-violet-400 mb-1">12</div>
-            <div className="text-xs text-zinc-400 font-medium">Eventos</div>
-          </div>
-          <div className="bg-night-800/50 border border-white/10 rounded-xl p-4 text-center hover:border-violet-500/50 transition-colors">
-            <div className="text-2xl font-bold text-emerald-400 mb-1">⭐4.8</div>
-            <div className="text-xs text-zinc-400 font-medium">Rating</div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3 mb-8">
-          <button 
-            onClick={() => setActiveView('edit')}
-            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-3 rounded-lg hover:scale-105 transition-transform active:scale-95"
-          >
-            <Edit2 size={18} />
-            Editar
-          </button>
-          <button 
-            onClick={() => setActiveView('settings')}
-            className="flex-1 flex items-center justify-center gap-2 bg-night-800 border border-white/10 text-white font-bold py-3 rounded-lg hover:border-white/30 transition-colors"
-          >
-            <Shield size={18} />
-            Config
-          </button>
-        </div>
-
-        {/* Logout */}
-        <button 
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 bg-rose-500/20 border border-rose-500/30 text-rose-400 font-semibold py-2.5 rounded-lg hover:bg-rose-500/30 transition-colors"
-        >
-          <LogOut size={18} />
-          Sair
-        </button>
+          </>
+        )}
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default Profile;
