@@ -114,8 +114,34 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogin = (user: any) => {
+  const handleLogin = async (user: any) => {
     setIsLoggedIn(true);
+    
+    // Criar/atualizar perfil no banco se não existir
+    try {
+      const { data: existingProfile } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (!existingProfile) {
+        // Criar perfil novo
+        await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+            avatar: user.user_metadata?.avatar_url || 'https://picsum.photos/100/100?random=1',
+            isPremium: false,
+            vibes: []
+          });
+      }
+    } catch (error) {
+      console.error('Erro ao criar perfil:', error);
+    }
+    
     setCurrentUser({
       id: user.id,
       name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',

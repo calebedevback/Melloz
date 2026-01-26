@@ -31,10 +31,19 @@ const Profile: React.FC = () => {
         if (profile) {
           setUser({
             id: profile.id,
-            name: profile.name,
-            avatar: profile.avatar,
-            isPremium: profile.isPremium,
-            vibes: profile.vibes
+            name: profile.name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+            avatar: profile.avatar || authUser.user_metadata?.avatar_url || 'https://picsum.photos/100/100?random=1',
+            isPremium: profile.isPremium || false,
+            vibes: profile.vibes || []
+          });
+        } else {
+          // Se não tiver perfil, usar dados do auth
+          setUser({
+            id: authUser.id,
+            name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+            avatar: authUser.user_metadata?.avatar_url || 'https://picsum.photos/100/100?random=1',
+            isPremium: false,
+            vibes: []
           });
         }
       }
