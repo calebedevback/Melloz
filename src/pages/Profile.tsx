@@ -68,6 +68,55 @@ const Profile: React.FC = () => {
     loadUserProfile();
   }, []);
 
+  // Recarregar quando voltar para a view principal
+  React.useEffect(() => {
+    if (activeView === 'main') {
+      const loadUserProfile = async () => {
+        setLoading(true);
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          // Buscar perfil completo do banco
+          const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', authUser.id)
+            .single();
+          
+          if (profile) {
+            setUser({
+              id: profile.id,
+              name: profile.name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+              avatar: profile.avatar || authUser.user_metadata?.avatar_url || 'https://picsum.photos/100/100?random=1',
+              isPremium: profile.isPremium || false,
+              vibes: profile.vibes || []
+            });
+            setEditForm({
+              name: profile.name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+              bio: 'Amante de música e noites inesquecíveis 🎵',
+              location: 'São Paulo, SP',
+              avatar: profile.avatar || authUser.user_metadata?.avatar_url || 'https://picsum.photos/100/100?random=1',
+              vibes: profile.vibes || [],
+              email: profile.email || authUser.email || '',
+              phone: '+55 11 99999-8888',
+            });
+          } else {
+            // Se não tiver perfil, usar dados do auth
+            setUser({
+              id: authUser.id,
+              name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+              avatar: authUser.user_metadata?.avatar_url || 'https://picsum.photos/100/100?random=1',
+              isPremium: false,
+              vibes: []
+            });
+          }
+        }
+        setLoading(false);
+      };
+      
+      loadUserProfile();
+    }
+  }, [activeView]);
+
   const [editForm, setEditForm] = useState({
     name: user.name,
     bio: 'Amante de música e noites inesquecíveis 🎵',
@@ -156,9 +205,10 @@ const Profile: React.FC = () => {
       try {
         console.log('Iniciando upload da foto:', file.name);
         
-        // Upload para o Supabase Storage
+        // Upload para o Supabase Storage com timestamp para evitar duplicatas
         const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}-avatar.${fileExt}`;
+        const timestamp = Date.now();
+        const fileName = `${user.id}-avatar-${timestamp}.${fileExt}`;
         
         console.log('Fazendo upload para:', fileName);
         
