@@ -4,10 +4,9 @@ interface LogoProps {
   size?: 'small' | 'medium' | 'large';
   showText?: boolean;
   className?: string;
-  useCustomImage?: boolean; // Nova prop para controlar qual logo usar
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true, className = '', useCustomImage = false }) => {
+const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true, className = '' }) => {
   // Size configurations
   const sizes = {
     small: { icon: "w-6 h-6", text: "text-lg" },
@@ -17,25 +16,7 @@ const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true, className
 
   const currentSize = sizes[size];
 
-  if (useCustomImage) {
-    // Usar imagem personalizada (login)
-    return (
-      <div className={`flex items-center gap-2 ${className}`}>
-        <img 
-          src="/src/assets/logoo.png"
-          alt="Melloz Logo"
-          className={`${currentSize.icon} object-contain`}
-        />
-        {showText && (
-          <span className={`font-sans font-medium text-white tracking-wide ${currentSize.text}`}>
-            Melloz
-          </span>
-        )}
-      </div>
-    );
-  }
-
-  // Usar logo original SVG (feed/site)
+  // Usar sempre logo original SVG
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {/* Logo Original SVG */}

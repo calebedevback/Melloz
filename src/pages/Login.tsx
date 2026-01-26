@@ -63,7 +63,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         
         {/* Logo Section */}
         <div className="mb-12 flex flex-col items-center animate-float">
-          <Logo size="large" useCustomImage={true} />
+          <Logo size="large" />
           <p className="text-zinc-500 mt-4 text-sm tracking-widest uppercase font-mono">
             Social Nightlife
           </p>
