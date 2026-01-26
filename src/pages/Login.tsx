@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Logo from '../components/Logo';
 import { ArrowRight, Mail, Lock, Sparkles } from 'lucide-react';
+import { apiEndpoints } from '../config/api.js';
 
 interface LoginProps {
   onLogin: () => void;
@@ -38,7 +39,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       }
 
       // Chamar API real do backend
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(apiEndpoints.auth.login, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

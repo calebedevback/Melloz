@@ -9,7 +9,7 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || 'super_secret_key',
   jwtExpire: process.env.JWT_EXPIRE || '7d',
   bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '10'),
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+  frontendUrl: process.env.FRONTEND_URL || 'https://melloz.vercel.app',
 };
 
 if (config.nodeEnv === 'production' && config.jwtSecret === 'super_secret_key') {
