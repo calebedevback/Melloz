@@ -12,8 +12,12 @@ type ProfileView = 'main' | 'edit' | 'settings';
 const Profile: React.FC = () => {
   const [activeView, setActiveView] = useState<ProfileView>('main');
   const [user, setUser] = useState<User>({
-    ...MOCK_USERS[1],
-    isPremium: false
+    id: '',
+    name: '',
+    email: '',
+    avatar: '',
+    isPremium: false,
+    vibes: []
   });
   
   // Carregar usuário real do Supabase
