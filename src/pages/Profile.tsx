@@ -15,6 +15,33 @@ const Profile: React.FC = () => {
     ...MOCK_USERS[1],
     isPremium: false
   });
+  
+  // Carregar usuário real do Supabase
+  React.useEffect(() => {
+    const loadUserProfile = async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        // Buscar perfil completo do banco
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
+        
+        if (profile) {
+          setUser({
+            id: profile.id,
+            name: profile.name,
+            avatar: profile.avatar,
+            isPremium: profile.isPremium,
+            vibes: profile.vibes
+          });
+        }
+      }
+    };
+    
+    loadUserProfile();
+  }, []);
 
   const [editForm, setEditForm] = useState({
     name: user.name,
@@ -67,14 +94,43 @@ const Profile: React.FC = () => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      try {
+        // Upload para o Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-avatar.${fileExt}`;
+        
+        const { data, error } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, file);
+
+        if (error) throw error;
+
+        // Obter URL pública
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+
+        // Atualizar perfil do usuário
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          await supabase
+            .from('users')
+            .update({ avatar: publicUrl })
+            .eq('id', authUser.id);
+
+          setUser({ ...user, avatar: publicUrl });
+          setAvatarPreview(publicUrl);
+        }
+      } catch (error) {
+        console.error('Erro ao fazer upload:', error);
+      }
+      
       const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result as string;
-        setEditForm({...editForm, avatar: result});
-        setAvatarPreview(result);
+        setAvatarPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }

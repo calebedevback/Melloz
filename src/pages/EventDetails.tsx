@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ArrowLeft, MapPin, Clock, Users, Share2, Calendar as CalendarIcon, DollarSign, Check, Zap, Lock, Send, MessageCircle } from 'lucide-react';
 import { Event, User } from '../types';
+import { SupabaseDBService } from '../lib/supabase-db';
+import { supabase } from '../lib/supabase';
 
 interface EventDetailsProps {
   event: Event;
@@ -25,7 +27,33 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     { id: '3', user: 'Maria', text: 'Eu topo!' }
   ]);
   const [inputMessage, setInputMessage] = useState('');
-    const [showListModal, setShowListModal] = useState(false);
+  const [showListModal, setShowListModal] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+
+  const handleConfirmPresence = async () => {
+    try {
+      setConfirming(true);
+      
+      // Obter usuário atual do Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      if (isJoined) {
+        // Sair do evento
+        await SupabaseDBService.leaveEvent(event.id, user.id);
+      } else {
+        // Entrar no evento
+        await SupabaseDBService.joinEvent(event.id, user.id);
+      }
+      
+      // Atualizar estado local
+      onToggleJoin();
+    } catch (error) {
+      console.error('Erro ao confirmar presença:', error);
+    } finally {
+      setConfirming(false);
+    }
+  };
   return (
     <div className="fixed inset-0 z-[60] bg-night-950 overflow-y-auto animate-fade-in no-scrollbar">
       
@@ -212,21 +240,24 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         {/* Floating Bottom Button */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-night-950 via-night-950 to-transparent">
             <button 
-                onClick={onToggleJoin}
+                onClick={handleConfirmPresence}
+                disabled={confirming}
                 className={`w-full py-4 rounded-2xl font-bold text-lg shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${
                     isJoined 
                     ? 'bg-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]' 
-                    : 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.2)]'
-                }`}
+                    : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-[0_0_30px_rgba(139,92,246,0.3)]'
+                } ${confirming ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-                {isJoined ? (
+                {confirming ? (
+                    <span className="animate-pulse">Processando...</span>
+                ) : isJoined ? (
                     <>
-                        <Check size={24} />
-                        <span>PRESENÇA CONFIRMADA</span>
+                        <Check size={24} className="fill-white" />
+                        <span>PRESença CONFIRMADA</span>
                     </>
                 ) : (
                     <>
-                        <Zap size={24} className={isJoined ? 'fill-white' : 'fill-black'} />
+                        <Zap size={24} className="fill-white" />
                         <span>CONFIRMAR PRESENÇA</span>
                     </>
                 )}
