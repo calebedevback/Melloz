@@ -118,16 +118,29 @@ const Profile: React.FC = () => {
   }, [activeView]);
 
   const [editForm, setEditForm] = useState({
-    name: user.name,
+    name: '',
     bio: 'Amante de música e noites inesquecíveis 🎵',
     location: 'São Paulo, SP',
-    avatar: user.avatar,
-    vibes: user.vibes,
-    email: user.email || '',
+    avatar: '',
+    vibes: [],
+    email: '',
     phone: '+55 11 99999-8888',
   });
 
   const [avatarPreview, setAvatarPreview] = useState<string>(user.avatar);
+
+  // Atualizar editForm quando user mudar
+  React.useEffect(() => {
+    setEditForm({
+      name: user.name,
+      bio: 'Amante de música e noites inesquecíveis 🎵',
+      location: 'São Paulo, SP',
+      avatar: user.avatar,
+      vibes: user.vibes,
+      email: user.email || '',
+      phone: '+55 11 99999-8888',
+    });
+  }, [user]);
 
   const [settings, setSettings] = useState({
     notifications: true,
