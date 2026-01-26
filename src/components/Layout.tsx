@@ -18,7 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange }) => 
   ];
 
   return (
-    <div className="min-h-screen text-zinc-100 font-sans w-full bg-transparent flex flex-col relative">
+    <div className="min-h-screen w-full bg-night-950 text-zinc-100 font-sans flex flex-col relative">
       
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto no-scrollbar scroll-smooth w-full">

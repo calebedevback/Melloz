@@ -122,49 +122,53 @@ const App: React.FC = () => {
       return <Login onLogin={handleLogin} />;
     }
 
-    switch (activeTab) {
-      case 'feed': return (
-        <Feed 
-            events={allEvents}
-            onEventClick={setSelectedEvent} 
-            confirmedEventIds={confirmedEvents}
-            onToggleEvent={handleToggleEvent}
-        />
-      );
-      case 'my-events': return (
-        <MyEvents 
-            events={allEvents}
-            onEventClick={setSelectedEvent} 
-            confirmedEventIds={confirmedEvents}
-        />
-      ); 
-      case 'create': return (
-        <CreateEvent 
-          onBack={() => setActiveTab('feed')} 
-          onCreate={handleCreateEvent}
-        />
-      );
-      case 'after-hours': return (
-        <AfterHours 
-            onOpenPremium={() => setShowPremium(true)}
-        />
-      );
-      case 'profile': return (
-        <Profile 
-            user={currentUser}
-            onOpenPremium={() => setShowPremium(true)}
-            onLogout={handleLogout}
-        />
-      );
-      default: return null;
-    }
+    return (
+      <Layout activeTab={activeTab} onTabChange={handleTabChange}>
+        {(() => {
+          switch (activeTab) {
+            case 'feed': return (
+              <Feed 
+                  events={allEvents}
+                  onEventClick={setSelectedEvent} 
+                  confirmedEventIds={confirmedEvents}
+                  onToggleEvent={handleToggleEvent}
+              />
+            );
+            case 'my-events': return (
+              <MyEvents 
+                  events={allEvents}
+                  onEventClick={setSelectedEvent} 
+                  confirmedEventIds={confirmedEvents}
+              />
+            ); 
+            case 'create': return (
+              <CreateEvent 
+                onBack={() => setActiveTab('feed')} 
+                onCreate={handleCreateEvent}
+              />
+            );
+            case 'after-hours': return (
+              <AfterHours 
+                  onOpenPremium={() => setShowPremium(true)}
+              />
+            );
+            case 'profile': return (
+              <Profile 
+                  user={currentUser}
+                  onOpenPremium={() => setShowPremium(true)}
+                  onLogout={handleLogout}
+              />
+            );
+            default: return null;
+          }
+        })()}
+      </Layout>
+    );
   };
 
   return (
     <>
-      <Layout activeTab={activeTab} onTabChange={handleTabChange}>
-        {renderPage()}
-      </Layout>
+      {renderPage()}
       
       {/* Full Screen Overlays with Animation */}
       {/* Modals with Animation */}
@@ -177,12 +181,12 @@ const App: React.FC = () => {
       {selectedEvent && (
         <div className="animate-slide-in-right">
           <EventDetails 
-              event={selectedEvent} 
-              onBack={() => setSelectedEvent(null)}
-              isJoined={confirmedEvents.includes(selectedEvent.id)}
-              onToggleJoin={() => handleToggleEvent(selectedEvent.id)}
-              currentUser={currentUser}
-              onOpenPremium={() => setShowPremium(true)}
+            event={selectedEvent}
+            onClose={() => setSelectedEvent(null)}
+            confirmedEventIds={confirmedEvents}
+            onToggleEvent={handleToggleEvent}
+            currentUser={currentUser}
+            onOpenPremium={() => setShowPremium(true)}
           />
         </div>
       )}
