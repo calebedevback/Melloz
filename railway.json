@@ -4,9 +4,6 @@
   },
   "deploy": {
     "startCommand": "node dist/server.js",
-    "buildCommand": "npm install && npm run build",
-    "watchPatterns": [
-      "backend/**"
-    ]
+    "buildCommand": "npm install && npm run build"
   }
 }
