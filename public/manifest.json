@@ -1,0 +1,18 @@
+{
+  "name": "Melloz - Social Nightlife",
+  "short_name": "Melloz",
+  "description": "Encontre os melhores rolês da noite",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020202",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/src/assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
