@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import Feed from './pages/Feed';
 import MyEvents from './pages/MyEvents'; 
@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import { ToastContainer, useToast } from './components/Toast';
 import { AppTab, Event, User } from './types';
 import { MOCK_EVENTS, MOCK_USERS } from './constants';
+import { supabase } from './lib/supabase';
 
 const App: React.FC = () => {
   const { toasts, removeToast, success, error } = useToast();
@@ -27,6 +28,63 @@ const App: React.FC = () => {
      ...MOCK_USERS[1], // Pedro (Non-premium)
      isPremium: false 
   });
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setIsLoggedIn(true);
+        setCurrentUser({
+          id: session.user.id,
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+          email: session.user.email || '',
+          avatar: session.user.user_metadata?.avatar_url || '',
+          isPremium: false
+        });
+      }
+    };
+
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setIsLoggedIn(true);
+        setCurrentUser({
+          id: session.user.id,
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+          email: session.user.email || '',
+          avatar: session.user.user_metadata?.avatar_url || '',
+          isPremium: false
+        });
+      } else {
+        setIsLoggedIn(false);
+        setCurrentUser({
+          ...MOCK_USERS[1],
+          isPremium: false 
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogin = (user: any) => {
+    setIsLoggedIn(true);
+    setCurrentUser({
+      id: user.id,
+      name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+      email: user.email || '',
+      avatar: user.user_metadata?.avatar_url || '',
+      isPremium: false
+    });
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsLoggedIn(false);
+  };
 
   const [confirmedEvents, setConfirmedEvents] = useState<string[]>(['e1']);
 
@@ -58,16 +116,12 @@ const App: React.FC = () => {
     setActiveTab('feed');
   };
 
-  // Authentication Flow
-  if (!isLoggedIn) {
-    return <Login onLogin={() => {
-      setIsLoggedIn(true);
-      success('Bem-vindo! 🚀', 'Bora curtir uns rolês?');
-    }} />;
-  }
-
   // Render Logic
   const renderPage = () => {
+    if (!isLoggedIn) {
+      return <Login onLogin={handleLogin} />;
+    }
+
     switch (activeTab) {
       case 'feed': return (
         <Feed 
@@ -90,16 +144,19 @@ const App: React.FC = () => {
           onCreate={handleCreateEvent}
         />
       );
-      case 'after': return <AfterHours onPremiumClick={() => setShowPremium(true)} />;
-      case 'profile': return <Profile />;
-      default: return (
-        <Feed 
-            events={allEvents}
-            onEventClick={setSelectedEvent} 
-            confirmedEventIds={confirmedEvents}
-            onToggleEvent={handleToggleEvent}
+      case 'after-hours': return (
+        <AfterHours 
+            onOpenPremium={() => setShowPremium(true)}
         />
       );
+      case 'profile': return (
+        <Profile 
+            user={currentUser}
+            onOpenPremium={() => setShowPremium(true)}
+            onLogout={handleLogout}
+        />
+      );
+      default: return null;
     }
   };
 

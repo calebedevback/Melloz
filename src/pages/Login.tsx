@@ -1,70 +1,13 @@
 import React, { useState } from 'react';
 import Logo from '../components/Logo';
-import { ArrowRight, Mail, Lock, Sparkles } from 'lucide-react';
-import { apiEndpoints } from '../config/api.js';
+import SupabaseAuth from '../components/SupabaseAuth';
+import { Sparkles } from 'lucide-react';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (user: any) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      // Validação básica
-      if (!email || !password) {
-        setError('Email e senha são obrigatórios');
-        setLoading(false);
-        return;
-      }
-
-      if (email.length < 5) {
-        setError('Email inválido');
-        setLoading(false);
-        return;
-      }
-
-      if (password.length < 4) {
-        setError('Senha deve ter no mínimo 4 caracteres');
-        setLoading(false);
-        return;
-      }
-
-      // Chamar API real do backend
-      const response = await fetch(apiEndpoints.auth.login, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Email ou senha incorretos');
-        setLoading(false);
-        return;
-      }
-
-      // Armazenar token e informações do usuário
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Fazer login
-      onLogin();
-    } catch (err) {
-      setError('Erro ao conectar ao servidor. Verifique se o backend está rodando.');
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-night-950 flex flex-col items-center justify-center p-6 relative overflow-hidden">
       
@@ -84,68 +27,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </p>
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleLogin} className="w-full space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          
-          {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-400 text-sm animate-pulse">
-              {error}
-            </div>
-          )}
-          
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Mail size={18} className="text-zinc-500 group-focus-within:text-violet-400 transition-colors" />
-            </div>
-            <input 
-              type="email" 
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
-              required 
-            />
-          </div>
-
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Lock size={18} className="text-zinc-500 group-focus-within:text-fuchsia-400 transition-colors" />
-            </div>
-            <input 
-              type="password" 
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-zinc-600 focus:outline-none focus:border-fuchsia-500/50 focus:bg-white/10 transition-all"
-              required
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <a href="#" className="text-xs text-zinc-500 hover:text-white transition-colors">Esqueceu a senha?</a>
-          </div>
-
-          <button 
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl text-white font-bold text-lg shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
-          >
-            {loading ? (
-              <span className="animate-pulse">Entrando...</span>
-            ) : (
-              <>
-                <span>Entrar</span>
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
-
-        </form>
-
-        <div className="mt-8 text-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
-          <p className="text-zinc-500 text-sm">
-            Não tem conta? <button className="text-white font-bold hover:underline">Cadastre-se</button>
-          </p>
+        {/* Supabase Auth */}
+        <div className="w-full animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <SupabaseAuth onLogin={onLogin} />
         </div>
 
         {/* Social Proof / Vibe Badge */}
