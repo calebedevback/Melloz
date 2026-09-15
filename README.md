@@ -1,20 +1,39 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Hapnow
 
-# Run and deploy your AI Studio app
+Plataforma de descoberta e criação de eventos locais — encontre "rolês" perto de você, veja o que seus amigos estão indo e crie seu próprio evento em minutos.
 
-This contains everything you need to run your app locally.
+🔗 **[hapnow.com.br](https://hapnow.com.br)**
 
-View your app in AI Studio: https://ai.studio/apps/drive/1VdF52U3nmSARgjECENplEG8cPTsPDfqI
+## Funcionalidades
 
-## Run Locally
+- Descoberta de eventos por localização ("perto de mim")
+- Criação de eventos com data, local e capa
+- Lista de participantes e confirmação de presença
+- Feed social: veja os eventos dos seus amigos
+- Autenticação de usuários
 
-**Prerequisites:**  Node.js
+## Stack
 
+**Frontend:** React, TypeScript
+**Backend:** Node.js, Express, TypeScript
+**Banco de dados:** PostgreSQL (Supabase), Prisma ORM
+**Autenticação:** JWT
+**Deploy:** Vercel (frontend) / Railway (backend)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Rodando localmente
+
+Pré-requisitos: Node.js e uma instância do Supabase (ou PostgreSQL local).
+
+```bash
+# Backend
+cd backend
+npm install
+npx prisma migrate dev
+npm run dev
+
+# Frontend (em outro terminal, na raiz do projeto)
+npm install
+npm run dev
+```
+
+Configure as variáveis de ambiente com base em `.env.example`.
